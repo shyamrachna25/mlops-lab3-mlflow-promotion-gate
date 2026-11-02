@@ -2,6 +2,7 @@ import time
 
 import mlflow
 import mlflow.xgboost
+import numpy as np
 import xgboost as xgb
 from hyperopt import STATUS_OK, Trials, fmin, hp, tpe
 from hyperopt.pyll import scope
@@ -12,6 +13,7 @@ from data_prep import load_and_prepare_data
 
 MODEL_NAME = "wine_quality"
 MAX_EVALS = 20  # reduced from the original's 96 since this runs sequentially
+SEARCH_SEED = 123  # same seed used everywhere else in this project
 
 search_space = {
     "max_depth": scope.int(hp.quniform("max_depth", 4, 100, 1)),
@@ -62,6 +64,7 @@ def main():
             algo=tpe.suggest,
             max_evals=MAX_EVALS,
             trials=trials,
+            rstate=np.random.default_rng(SEARCH_SEED),
         )
         parent_run_id = parent_run.info.run_id
         
